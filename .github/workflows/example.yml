@@ -1,0 +1,21 @@
+name: TestCafe Tests
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  testcafe:
+    runs-on: ubuntu-latest
+    container:
+      image: testcafe/testcafe:3.7.0
+      options: --entrypoint /bin/sh -c
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run TestCafe tests
+        run: /opt/testcafe/docker/testcafe-docker.sh chromium:headless '--no-sandbox --disable-dev-shm-usage' test.js
