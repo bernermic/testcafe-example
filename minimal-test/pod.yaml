@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: minimal-testcafe-example
+  namespace: default
+spec:
+  containers:
+    - name: minimal-testcafe-example
+      image: "testcafe/testcafe:3.7.2"
+      imagePullPolicy: IfNotPresent
+      command: ["/opt/testcafe/docker/testcafe-docker.sh", "chromium:headless --no-sandbox --disable-dev-shm-usage", "/scripts/minimal-test.js"]
+      volumeMounts:
+        - name: testcafe-script
+          mountPath: /scripts
+  volumes:
+    - name: testcafe-script
+      configMap:
+        name: testcafe-script
+  restartPolicy: Never

@@ -4,18 +4,34 @@ on:
   push:
     branches:
       - main
+      - wip
   pull_request:
 
 jobs:
-  testcafe:
+  kind-test:
     runs-on: ubuntu-latest
-    container:
-      image: testcafe/testcafe:3.7.0
-      options: --entrypoint /bin/sh -c
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Run TestCafe tests
-        run: /opt/testcafe/docker/testcafe-docker.sh chromium:headless '--no-sandbox --disable-dev-shm-usage' ./test.js
+      - name: Set up KinD
+        uses: helm/kind-action@v1.8.0
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Apply ConfigMap
+        run: |
+          kubectl apply -f minimal-test/testcafe-script-configmap.yaml
+          kubectl apply -f minimal-test/pod.yaml
+
+      - name: Wait for pod to complete
+        run: |
+          echo "Waiting for pod to complete execution..."
+          kubectl wait --for=condition=Ready pod/minimal-testcafe-example --timeout=60s
+          # Check pod status
+          kubectl get pod minimal-testcafe-example -o wide
+
+      - name: Get pod logs
+        run: |
+          echo "TestCafe test results:"
+          kubectl logs minimal-testcafe-example

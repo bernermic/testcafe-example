@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: testcafe-script
+  namespace: default
+data:
+  minimal-test.js: |
+    import { Selector } from 'testcafe'; 
+    fixture`Testcafe minimal example`.page('https://testcafe.io/'); 
+    test('Open Testcafe IO and expect a title', async t => { await t.expect(Selector('title').exists).ok(); });
